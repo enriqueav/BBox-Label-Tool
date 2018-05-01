@@ -1,4 +1,4 @@
-BBox-Label-Tool
+BBox-Label-Tool: Darkflow Annotations
 ===============
 
 A simple tool for labeling object bounding boxes in images, implemented with Python Tkinter.
@@ -6,7 +6,8 @@ A simple tool for labeling object bounding boxes in images, implemented with Pyt
 **Changes in this fork:**
 - Besides the .txt file. Save the annotations as an .xml file with the format of PASCAL VOC. As expected by 
 [Darkflow](https://github.com/thtrieu/darkflow), the Tensorflow translation of [Darknet's YOLO: Real-Time Object Detection](https://pjreddie.com/darknet/yolo/).
-- Button to show/hide the annotation number.
+- Button to show/hide bounding box number. This helps in the case the data set nees to be modified, 
+removing or redoing several boxes.
 - Support multiple file extensions: ".jpg", ".jpeg", ".JPG", ".JPEG"
 - Do not crash if there is no Examples/<number> for the loaded dir. Is good to have them, but is not mandatory.
 
@@ -20,11 +21,13 @@ LabelTool
 |  
 |--main.py   *# source code for the tool*  
 |  
-|--Images/   *# direcotry containing the images to be labeled*  
+|--Images/   *# directory containing the images to be labeled*  
 |  
-|--Labels/   *# direcotry for the labeling results*  
+|--Labels/   *# directory for the labeling results*  
 |  
-|--Examples/  *# direcotry for the example bboxes*  
+|--Examples/  *# directory for the example bboxes*  
+|  
+|--AnnotationsXML/  *# directory for the labeling results to be used by **Darkflow***  
 
 Environment
 ----------
