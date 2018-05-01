@@ -12,7 +12,7 @@ A simple tool for labeling object bounding boxes in images, implemented with Pyt
 
 
 **Screenshot:**
-![Label Tool](./screenshot.png)
+![Label Tool with Box Number](./screenshot_numbers.png)
 
 Data Organization
 -----------------
