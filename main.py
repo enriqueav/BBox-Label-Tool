@@ -14,6 +14,8 @@ import os
 import glob
 import random
 
+from xml_util import createXMLAnnotation
+
 # colors for the bboxes
 COLORS = ['red', 'blue', 'yellow', 'pink', 'cyan', 'green', 'black']
 # image sizes for the examples
@@ -34,11 +36,14 @@ class LabelTool():
         self.egDir = ''
         self.egList = []
         self.outDir = ''
+        self.xmlDir = ''
         self.cur = 0
         self.total = 0
         self.category = 0
+        self.imagepath = ''
         self.imagename = ''
         self.labelfilename = ''
+        self.xmlfilename = ''
         self.tkimg = None
         self.numbers = False
         self.boxcount = 0
@@ -136,7 +141,9 @@ class LabelTool():
 ##            return
         # get image list
         self.imageDir = os.path.join(r'./Images', '%03d' %(self.category))
-        self.imageList = glob.glob(os.path.join(self.imageDir, '*.JPEG'))
+        extensions = ("*.jpg", "*.jpeg", "*.JPG", "*.JPEG")
+        for extension in extensions:
+            self.imageList.extend(glob.glob(os.path.join(self.imageDir, extension)))
         if len(self.imageList) == 0:
             print 'No .JPEG images found in the specified dir!'
             return
@@ -147,13 +154,18 @@ class LabelTool():
 
          # set up output dir
         self.outDir = os.path.join(r'./Labels', '%03d' %(self.category))
+        self.xmlDir = os.path.join(r'./AnnotationsXML', '%03d' %(self.category))
         if not os.path.exists(self.outDir):
             os.mkdir(self.outDir)
+        if not os.path.exists(self.xmlDir):
+            os.mkdir(self.xmlDir)
 
         # load example bboxes
         self.egDir = os.path.join(r'./Examples', '%03d' %(self.category))
         if os.path.exists(self.egDir):
-            filelist = glob.glob(os.path.join(self.egDir, '*.JPEG'))
+            filelist = []
+            for extension in extensions:
+                filelist.extend(glob.glob(os.path.join(self.egDir, extension)))
             self.tmp = []
             self.egList = []
             random.shuffle(filelist)
@@ -172,8 +184,8 @@ class LabelTool():
 
     def loadImage(self):
         # load image
-        imagepath = self.imageList[self.cur - 1]
-        self.img = Image.open(imagepath)
+        self.imagepath = self.imageList[self.cur - 1]
+        self.img = Image.open(self.imagepath)
         self.tkimg = ImageTk.PhotoImage(self.img)
         self.mainPanel.config(width = max(self.tkimg.width(), 400), height = max(self.tkimg.height(), 400))
         self.mainPanel.create_image(0, 0, image = self.tkimg, anchor=NW)
@@ -181,9 +193,11 @@ class LabelTool():
 
         # load labels
         self.clearBBox()
-        self.imagename = os.path.split(imagepath)[-1].split('.')[0]
+        self.imagename = os.path.split(self.imagepath)[-1].split('.')[0]
         labelname = self.imagename + '.txt'
+        xmlname = self.imagename + '.xml'
         self.labelfilename = os.path.join(self.outDir, labelname)
+        self.xmlfilename = os.path.join(self.xmlDir, xmlname)
         bbox_cnt = 0
         counter = 0
         if os.path.exists(self.labelfilename):
@@ -193,7 +207,7 @@ class LabelTool():
                         bbox_cnt = int(line.strip())
                         continue
                     tmp = [int(t.strip()) for t in line.split()]
-##                    print tmp
+##                  print tmp
                     self.bboxList.append(tuple(tmp))
                     counter = counter + 1
                     tmpId = self.mainPanel.create_rectangle(tmp[0], tmp[1], \
@@ -216,6 +230,8 @@ class LabelTool():
             f.write('%d\n' %len(self.bboxList))
             for bbox in self.bboxList:
                 f.write(' '.join(map(str, bbox)) + '\n')
+        im = Image.open(self.imagepath)
+        createXMLAnnotation(os.path.split(self.imagepath)[-1], self.bboxList, im.size, self.xmlfilename)
         print 'Image No. %d saved' %(self.cur)
 
 
@@ -233,7 +249,6 @@ class LabelTool():
                 self.listbox.insert(END, '%d: (%d, %d) -> (%d, %d)' %(self.boxcount, x1, y1, x2, y2))
                 x, y = self.get_text_coordinates([x1, y1, x2, y2])
                 textId = self.mainPanel.create_text(x, y, text=str(self.boxcount))
-                self.bboxNumberList.append(textId)
             else:
                 self.listbox.insert(END, '(%d, %d) -> (%d, %d)' %(x1, y1, x2, y2))
             self.listbox.itemconfig(len(self.bboxIdList) - 1, fg = COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
@@ -269,11 +284,12 @@ class LabelTool():
             return
         idx = int(sel[0])
         self.mainPanel.delete(self.bboxIdList[idx])
-        self.mainPanel.delete(self.bboxNumberList[idx])
         self.bboxIdList.pop(idx)
-        self.bboxNumberList.pop(idx)
         self.bboxList.pop(idx)
         self.listbox.delete(idx)
+        if self.numbers:
+            self.mainPanel.delete(self.bboxNumberList[idx])
+            self.bboxNumberList.pop(idx)
 
     def clearBBox(self):
         for idx in range(len(self.bboxIdList)):

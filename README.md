@@ -3,12 +3,12 @@ BBox-Label-Tool
 
 A simple tool for labeling object bounding boxes in images, implemented with Python Tkinter.
 
-**Updates:**
-- 2017.5.21 Check out the ```multi-class``` branch for a multi-class version implemented by @jxgu1016
-
 **Changes in this fork:**
-- Do not crash if there is no Examples/<number> for the loaded dir. Is good to have them, but is not mandatory.
+- Besides the .txt file. Save the annotations as an .xml file with the format of PASCAL VOC. As expected by 
+[Darkflow](https://github.com/thtrieu/darkflow), the Tensorflow translation of [Darknet's YOLO: Real-Time Object Detection](https://pjreddie.com/darknet/yolo/).
 - Button to show/hide the annotation number.
+- Support multiple file extensions: ".jpg", ".jpeg", ".JPG", ".JPEG"
+- Do not crash if there is no Examples/<number> for the loaded dir. Is good to have them, but is not mandatory.
 
 
 **Screenshot:**
